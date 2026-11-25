@@ -1,0 +1,27 @@
+name: sane-backends-upstream
+arch: ${ARCH}
+platform: linux
+version: ${VERSION}
+release: ${RELEASE}
+section: libs
+priority: optional
+maintainer: "Alexander Birkner <alex.birkner@gmail.com>"
+description: >-
+  Upstream SANE (libsane and the xerox_mfp backend) in /opt/sane, next to the
+  distribution's sane-backends. Use with LD_LIBRARY_PATH=/opt/sane/lib.
+vendor: "Alexander Birkner"
+homepage: https://gitlab.com/sane-project/backends
+license: GPL-2.0-or-later
+
+contents:
+  - src: stage/opt/sane/lib
+    dst: /opt/sane/lib
+    type: tree
+
+overrides:
+  rpm:
+    depends:
+      - libusb1
+      - libjpeg-turbo
+      - libpng
+      - libxml2

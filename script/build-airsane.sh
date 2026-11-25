@@ -25,5 +25,5 @@ curl -sSL "https://github.com/goreleaser/nfpm/releases/download/v${NFPM_VERSION}
   | tar -xz -C /usr/local/bin nfpm
 
 mkdir -p dist
-nfpm package --config nfpm.yaml --packager rpm --target dist/
+nfpm package --config nfpm-airsane.yaml --packager rpm --target dist/
 ls -l dist
