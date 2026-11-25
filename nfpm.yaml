@@ -1,0 +1,51 @@
+name: airsane
+arch: ${ARCH}
+platform: linux
+version: ${VERSION}
+release: ${RELEASE}
+section: utils
+priority: optional
+maintainer: "Alexander Birkner <alex.birkner@gmail.com>"
+description: AirSane - SANE scanners as eSCL/AirScan network scanners (built for Fedora)
+vendor: "Alexander Birkner"
+homepage: https://github.com/SimulPiscator/AirSane
+license: GPL-3.0-or-later
+
+contents:
+  - src: build/airsaned
+    dst: /usr/sbin/airsaned
+    file_info: { mode: 0755 }
+  - src: packaging/airsaned.service
+    dst: /usr/lib/systemd/system/airsaned.service
+    file_info: { mode: 0644 }
+  - src: packaging/airsane.sysusers
+    dst: /usr/lib/sysusers.d/airsane.conf
+    file_info: { mode: 0644 }
+  - src: src/etc/access.conf
+    dst: /etc/airsane/access.conf
+    type: config|noreplace
+  - src: src/etc/ignore.conf
+    dst: /etc/airsane/ignore.conf
+    type: config|noreplace
+  - src: src/etc/options.conf
+    dst: /etc/airsane/options.conf
+    type: config|noreplace
+  - src: src/etc/Gnome-scanner.png
+    dst: /etc/airsane/Gnome-scanner.png
+    file_info: { mode: 0644 }
+
+# Runtime libraries: what the Fedora build links against.
+overrides:
+  rpm:
+    depends:
+      - sane-backends
+      - sane-backends-drivers-scanners
+      - avahi-libs
+      - libjpeg-turbo
+      - libpng
+      - libusb1
+      - systemd
+
+scripts:
+  postinstall: packaging/postinstall.sh
+  preremove: packaging/preremove.sh

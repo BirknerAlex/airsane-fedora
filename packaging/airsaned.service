@@ -1,0 +1,17 @@
+[Unit]
+Description=AirSane Imaging Service (eSCL/AirScan)
+After=network-online.target avahi-daemon.service
+Wants=network-online.target
+
+[Service]
+# Per-host flags and environment go in a drop-in, e.g.
+# /etc/systemd/system/airsaned.service.d/override.conf
+ExecStart=/usr/sbin/airsaned --interface=* --listen-port=8090 --hotplug=false --web-interface=true --options-file=/etc/airsane/options.conf --access-file=/etc/airsane/access.conf --ignore-list=/etc/airsane/ignore.conf
+ExecReload=/bin/kill -HUP $MAINPID
+User=airsane
+Group=airsane
+Restart=on-failure
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

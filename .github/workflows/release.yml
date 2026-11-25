@@ -1,0 +1,62 @@
+name: Build and publish
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]   # v<airsane version>-<release>, e.g. v0.4.16-1
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build RPM (Fedora ${{ matrix.fedora }}, ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { fedora: "45", arch: x86_64, runner: ubuntu-latest }
+    container: fedora:${{ matrix.fedora }}
+    steps:
+      - run: dnf install -y git
+      - uses: actions/checkout@v4
+
+      # Tag v0.4.16-2 -> AirSane v0.4.16, package release 2. Branch builds
+      # use the version in AIRSANE_VERSION and release 0.
+      - name: Resolve version
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = tag ]; then
+            tag="${GITHUB_REF_NAME}"
+            echo "AIRSANE_REF=${tag%-*}" >> "$GITHUB_ENV"
+            echo "RELEASE=${tag##*-}" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE=0" >> "$GITHUB_ENV"
+          fi
+
+      - run: ./script/build.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: airsane-fedora${{ matrix.fedora }}-${{ matrix.arch }}
+          path: dist/*.rpm
+          retention-days: 7
+
+  publish-silo:
+    name: Publish to silo
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: airsane-*
+          path: dist
+          merge-multiple: true
+
+      - uses: BirknerAlex/silo/.github/actions/publish@v0.15.0
+        with:
+          server: https://silo.tyrola.dev
+          token: ${{ secrets.SILO_AIRSANE_TOKEN }}
+          repo: airsane
+          channel: stable
+          files: dist/*.rpm
