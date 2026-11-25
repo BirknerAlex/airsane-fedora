@@ -12,7 +12,7 @@ export RELEASE="${RELEASE:-1}"
 export ARCH="${ARCH:-$(uname -m)}"
 NFPM_VERSION="${NFPM_VERSION:-2.47.0}"
 
-dnf install -y git curl tar gcc gcc-c++ make autoconf automake libtool gettext-devel \
+dnf install -y git curl tar gcc gcc-c++ make autoconf autoconf-archive automake libtool gettext-devel \
   pkgconf-pkg-config libusb1-devel libjpeg-turbo-devel libpng-devel libtiff-devel \
   libxml2-devel avahi-devel
 
