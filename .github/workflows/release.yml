@@ -3,7 +3,7 @@ name: Build and publish
 on:
   push:
     branches: [main]
-    tags: ["v*"]   # v<airsane version>-<release>, e.g. v0.4.16-1
+    tags: ["r*"]   # r<N>: package release number, e.g. r2
   pull_request:
   workflow_dispatch:
 
@@ -21,20 +21,19 @@ jobs:
     steps:
       - run: dnf install -y git
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
-      # Tag v0.4.16-2 -> AirSane v0.4.16, package release 2. Branch builds
-      # use the version in AIRSANE_VERSION and release 0.
-      - name: Resolve version
+      # Tag r2 -> package release 2. Branch builds use release 0.
+      - name: Resolve release
         run: |
           if [ "${GITHUB_REF_TYPE}" = tag ]; then
-            tag="${GITHUB_REF_NAME}"
-            echo "AIRSANE_REF=${tag%-*}" >> "$GITHUB_ENV"
-            echo "RELEASE=${tag##*-}" >> "$GITHUB_ENV"
+            echo "RELEASE=${GITHUB_REF_NAME#r}" >> "$GITHUB_ENV"
           else
             echo "RELEASE=0" >> "$GITHUB_ENV"
           fi
 
-      - run: ./script/build-${{ matrix.package }}.sh
+      - run: ./${{ matrix.package }}/build.sh
 
       - uses: actions/upload-artifact@v4
         with:
@@ -45,7 +44,7 @@ jobs:
   publish-silo:
     name: Publish to silo
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/r')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v5

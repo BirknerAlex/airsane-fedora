@@ -1,0 +1,6 @@
+[submodule "airsane/src"]
+	path = airsane/src
+	url = https://github.com/SimulPiscator/AirSane.git
+[submodule "sane-backends/src"]
+	path = sane-backends/src
+	url = https://gitlab.com/sane-project/backends.git
